@@ -1,0 +1,31 @@
+{
+  "name": "census-transform",
+  "version": "1.0.0",
+  "description": "Javascript implementation of Census Transform operator",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "convert": "ts-node src/convert.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tankakatan/ct.git"
+  },
+  "keywords": [
+    "census-transform",
+    "optical-flow",
+    "computer-vision"
+  ],
+  "author": "patapatam",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tankakatan/ct/issues"
+  },
+  "homepage": "https://github.com/tankakatan/ct#readme",
+  "devDependencies": {
+    "@types/node": "^18.11.18",
+    "jimp": "^0.16.2",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.4"
+  }
+}

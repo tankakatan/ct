@@ -1,0 +1,37 @@
+{
+    "compilerOptions": {
+      "outDir": "dist",
+      "module": "commonjs",
+      "target": "ESNext",
+      "lib": ["es6", "dom"],
+      "sourceMap": true,
+      "allowJs": false,
+      "jsx": "react",
+      "moduleResolution": "node",
+      "esModuleInterop": true,
+      "allowSyntheticDefaultImports": true,
+      "rootDir": "src",
+      "noImplicitReturns": false,
+      "noImplicitThis": true,
+      "noImplicitAny": true,
+      "strictNullChecks": true,
+      "strict": true,
+      "baseUrl": "src",
+      "paths": {
+        "~src/*": ["./*"],
+        "~assets/*": ["./assets/*"],
+        "_components": ["./components"],
+        "_components/*": ["./components/*"]
+      }
+    },
+    "exclude": [
+      "node_modules",
+      "dist",
+      "scripts"
+    ],
+    "types": [
+      "node_modules/@types/**/*",
+      "src/@types/*"
+    ]
+  }
+  
