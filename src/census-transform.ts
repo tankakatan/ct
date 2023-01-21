@@ -1,39 +1,39 @@
 export type InputBitmapOpts = {
     bytesPerPixel?: number;
-    w: number;
-    h: number;
+    width: number;
+    height: number;
 };
 
-export default (bitmap: Buffer, {bytesPerPixel = 4, w, h}: InputBitmapOpts) => {
+export default (bitmap: Buffer, {bytesPerPixel = 4, width, height}: InputBitmapOpts) => {
     const xi = (i1: number, i2: number) => (
-        Number(bitmap[i1 * bytesPerPixel] <= bitmap[i2 * bytesPerPixel])
+        bitmap[i1 * bytesPerPixel] <= bitmap[i2 * bytesPerPixel]
     );
 
     const transform = [];
 
-    for (let i = 0; i < h; i++) {
-        for (let j = 0; j < w; j++) {
-            const offset = i * w + j;
+    for (let i = 0; i < height; i++) {
+        for (let j = 0; j < width; j++) {
+            const offset = i * width + j;
+
             const firstRow = i === 0;
             const firstCol = j === 0;
-            const lastRow = i === h - 1;
-            const lastCol = j === w - 1;
-            const vector = [
-                +(firstCol || firstRow) || xi(offset, offset - w - 1),
-                +(            firstRow) || xi(offset, offset - w),
-                +(lastCol  || firstRow) || xi(offset, offset - w + 1),
+            const lastRow = i === height - 1;
+            const lastCol = j === width - 1;
 
-                +(firstCol            ) || xi(offset, offset - 1),
-                +(lastCol             ) || xi(offset, offset + 1),
+            let byte = 0;
 
-                +(firstCol || lastRow ) || xi(offset, offset + w - 1),
-                +(            lastRow ) || xi(offset, offset + w),
-                +(lastCol  || lastRow ) || xi(offset, offset + w + 1),
-            ];
+            byte |= +(firstCol || firstRow || xi(offset, offset - width - 1)); byte <<= 1;
+            byte |= +(            firstRow || xi(offset, offset - width    )); byte <<= 1;
+            byte |= +(lastCol  || firstRow || xi(offset, offset - width + 1)); byte <<= 1;
+            byte |= +(firstCol             || xi(offset, offset         - 1)); byte <<= 1;
+            byte |= +(lastCol              || xi(offset, offset         + 1)); byte <<= 1;
+            byte |= +(firstCol || lastRow  || xi(offset, offset + width - 1)); byte <<= 1;
+            byte |= +(            lastRow  || xi(offset, offset + width    )); byte <<= 1;
+            byte |= +(lastCol  || lastRow  || xi(offset, offset + width + 1));
 
-            transform.push(vector.join(''));
+            transform.push(byte, byte, byte, 255);
         }
     }
 
-    return transform;
+    return Buffer.from(transform);
 };
