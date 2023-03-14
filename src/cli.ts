@@ -1,10 +1,10 @@
 import {resolve} from 'path';
-import Jimp from './';
+import Jimp from './ext';
 
 const [,, filename, width, height] = process.argv;
 
 if (!filename) {
-    throw new Error('Please specify a filename to conver');
+    throw new Error('Please specify a filename to convert');
 }
 
 (async () => {
@@ -18,7 +18,9 @@ if (!filename) {
             );
         }
 
-        image.censusTransform().write(path.replace(/(\.[a-zA-Z0-9]+)$/, '-ct$1'));
+        image.censusTransform({binary: true})
+             .write(path.replace(/(\.[a-zA-Z0-9]+)$/, '-ct$1'));
+
     } catch (e) {
         console.error('Census Transform error:', e);
     } finally {

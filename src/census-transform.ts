@@ -2,9 +2,18 @@ export type InputBitmapOpts = {
     bytesPerPixel?: number;
     width: number;
     height: number;
+    binary?: boolean;
 };
 
-export default (bitmap: Buffer, {bytesPerPixel = 4, width, height}: InputBitmapOpts) => {
+export default (
+    bitmap: Buffer,
+    {
+        bytesPerPixel = 4,
+        width,
+        height,
+        binary = false,
+    }: InputBitmapOpts
+) => {
     const xi = (i1: number, i2: number) => (
         bitmap[i1 * bytesPerPixel] <= bitmap[i2 * bytesPerPixel]
     );
@@ -30,6 +39,10 @@ export default (bitmap: Buffer, {bytesPerPixel = 4, width, height}: InputBitmapO
             byte |= +(firstCol || lastRow  || xi(offset, offset + width - 1)); byte <<= 1;
             byte |= +(            lastRow  || xi(offset, offset + width    )); byte <<= 1;
             byte |= +(lastCol  || lastRow  || xi(offset, offset + width + 1));
+
+            if (binary) {
+                byte = byte > 127 ? 255 : 0;
+            }
 
             transform.push(byte, byte, byte, 255);
         }
