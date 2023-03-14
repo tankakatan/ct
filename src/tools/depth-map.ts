@@ -1,12 +1,12 @@
 export type DepthMapOpts = {
-    bytesPerPixel: number;
+    bytesPerPixel?: number;
     width: number;
     height: number;
 };
 
 export default (
-    i1: Buffer,
-    i2: Buffer,
+    i1: Uint8ClampedArray,
+    i2: Uint8ClampedArray,
     {
         bytesPerPixel = 4,
         width,

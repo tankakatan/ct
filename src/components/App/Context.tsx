@@ -10,8 +10,10 @@ import React, {
     useCallback,
 } from 'react';
 
-import {ct} from '../../tools';
-import sourceImage from '../../../assets/Glasses_800_edit.png';
+import {ct, dm, rescale} from '../../tools';
+// import sourceImage from '../../../assets/Glasses_800_edit.png';
+import sourceImage1 from '../../../assets/dm-test-01.gif';
+import sourceImage2 from '../../../assets/dm-test-02.gif';
 
 const AppContext = createContext({
     canvasSrc: null as Ref<HTMLCanvasElement>,
@@ -23,7 +25,7 @@ const AppContext = createContext({
 export const useAppContext = () => useContext(AppContext);
 
 export const ProvideAppContext: FC<PropsWithChildren> = ({children}) => {
-    const [src, setSrc] = useState(sourceImage);
+    // const [src, setSrc] = useState(sourceImage);
     const imgSrc = useRef<HTMLImageElement>(new Image());
     const canvasSrc = useRef<HTMLCanvasElement>(null);
     const canvasCns = useRef<HTMLCanvasElement>(null);
@@ -64,33 +66,87 @@ export const ProvideAppContext: FC<PropsWithChildren> = ({children}) => {
         fitIntoScreen();
         window.onresize = () => {
             fitIntoScreen();
-            if (imgSrc && canvasSrc && canvasSrc.current) {
-                drawImageInCanvas(imgSrc.current, canvasSrc.current);
-            }
+            // if (imgSrc && canvasSrc && canvasSrc.current) {
+            //     drawImageInCanvas(imgSrc.current, canvasSrc.current);
+            // }
         };
     }, [imgSrc]);
 
     useEffect(() => {
-        imgSrc.current.src = src;
+        imgSrc.current.src = sourceImage1;
         imgSrc.current.onload = async () => {
             if (!(canvasSrc && canvasSrc.current)) {
                 return;
             }
 
-            const srcData = drawImageInCanvas(imgSrc.current, canvasSrc.current);
+            // const srcData = drawImageInCanvas(imgSrc.current, canvasSrc.current);
+
+            const ctxSrc = canvasSrc.current.getContext('2d');
+            if (!ctxSrc) {
+                return;
+            }
+
+            ctxSrc.drawImage(imgSrc.current, 0, 0);
+            const imgSrc2: HTMLImageElement = await (() => {
+                const imgSrc2 = new Image();
+                imgSrc2.src = sourceImage2;
+                return new Promise((resolve) => {
+                    imgSrc2.onload = () => resolve(imgSrc2)
+                });
+            })();
+
+            ctxSrc.drawImage(imgSrc2, imgSrc.current.width, 0);
+
+            const srcData = ctxSrc.getImageData(0, 0,
+                imgSrc.current.width + imgSrc2.width,
+                Math.max(imgSrc.current.height, imgSrc2.height),
+            );
+
             if (!srcData || !canvasCns || !canvasCns.current) {
                 return;
             }
 
-            const ctx = canvasCns.current.getContext('2d');
-            if (!ctx) {
+            const ctxCns = canvasCns.current.getContext('2d');
+            if (!ctxCns) {
                 return;
             }
 
             const {width, height, data} = srcData;
-            ctx.putImageData(new ImageData(ct(data, {width, height}), width, height), 0, 0);
+            const cnsData = new ImageData(ct(data, {width, height}), width, height);
+            ctxCns.putImageData(cnsData, 0, 0);
+
+            if (!(canvasDpt && canvasDpt.current)) {
+                return;
+            }
+
+            const depthMap = dm(
+                ctxCns.getImageData(0, 0, Math.floor(width / 2), height).data,
+                ctxCns.getImageData(Math.floor(width / 1) + 1, 0, Math.floor(width / 2), height).data,
+                {height, width: Math.floor(width / 2)}
+            );
+            let maxDepth = 0;
+            for (let i = 0; i < depthMap.length; i++) {
+                maxDepth = Math.max(maxDepth, depthMap[i]);
+            }
+
+            const depthMapData = [];
+            for (let i = 0; i < depthMap.length; i++) {
+                const pixel = rescale(depthMap[i], 0, maxDepth, 255, 0);
+                depthMapData.push(pixel, pixel, pixel, 255);
+            }
+
+            const dptData = new ImageData(
+                new Uint8ClampedArray(depthMapData), Math.floor(width/2), height
+            );
+
+            const ctxDpt = canvasDpt.current.getContext('2d');
+            if (!ctxDpt) {
+                return;
+            }
+
+            ctxDpt.putImageData(dptData, 0, 0);
         };
-    }, [src]);
+    }, []);
 
     const value = {
         canvasSrc,
