@@ -6,7 +6,7 @@ export type InputBitmapOpts = {
 };
 
 export default (
-    bitmap: Buffer,
+    bitmap: Uint8ClampedArray,
     {
         bytesPerPixel = 4,
         width,
@@ -48,5 +48,5 @@ export default (
         }
     }
 
-    return Buffer.from(transform);
+    return new Uint8ClampedArray(transform);
 };

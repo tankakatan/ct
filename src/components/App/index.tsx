@@ -1,16 +1,16 @@
 import React from 'react';
 
-import {ProvideAppContext} from './Context';
-import sourceImage from '../../../assets/Glasses_800_edit.png';
+import {ProvideAppContext, useAppContext} from './Context';
 
 const App = () => {
+    const {canvasSrc, canvasCns, canvasDpt, canvasPlt} = useAppContext();
+    const hint = 'Your browser does not support HTML 5 canvas';
     return (
         <div>
-            <img src={sourceImage} alt='Source Image'/>
-            <canvas id='source'>Your browser does not support HTML 5 canvas</canvas>
-            <canvas id='census'>Your browser does not support HTML 5 canvas</canvas>
-            <canvas id='depth'>Your browser does not support HTML 5 canvas</canvas>
-            <canvas id='plot'>Your browser does not support HTML 5 canvas</canvas>
+            <canvas id='source' ref={canvasSrc}>{hint}</canvas>
+            <canvas id='census' ref={canvasCns}>{hint}</canvas>
+            <canvas id='depth' ref={canvasDpt}>{hint}</canvas>
+            <canvas id='plot' ref={canvasPlt}>{hint}</canvas>
         </div>
     );
 };
