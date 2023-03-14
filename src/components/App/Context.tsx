@@ -10,7 +10,7 @@ import React, {
     useCallback,
 } from 'react';
 
-import ct from '../../census-transform';
+import {ct} from '../../tools';
 import sourceImage from '../../../assets/Glasses_800_edit.png';
 
 const AppContext = createContext({
