@@ -112,7 +112,8 @@ export const ProvideAppContext: FC<PropsWithChildren> = ({children}) => {
             }
 
             const {width, height, data} = srcData;
-            const cnsData = new ImageData(ct(data, {width, height}), width, height);
+            const cnsBytes = ct(data, {width, height});
+            const cnsData = new ImageData(cnsBytes, width, height);
             ctxCns.putImageData(cnsData, 0, 0);
 
             if (!(canvasDpt && canvasDpt.current)) {
@@ -121,7 +122,7 @@ export const ProvideAppContext: FC<PropsWithChildren> = ({children}) => {
 
             const depthMap = dm(
                 ctxCns.getImageData(0, 0, Math.floor(width / 2), height).data,
-                ctxCns.getImageData(Math.floor(width / 1) + 1, 0, Math.floor(width / 2), height).data,
+                ctxCns.getImageData(Math.floor(width / 2), 0, Math.floor(width / 2), height).data,
                 {height, width: Math.floor(width / 2)}
             );
             let maxDepth = 0;
@@ -136,7 +137,8 @@ export const ProvideAppContext: FC<PropsWithChildren> = ({children}) => {
             }
 
             const dptData = new ImageData(
-                new Uint8ClampedArray(depthMapData), Math.floor(width/2), height
+                new Uint8ClampedArray(depthMapData),
+                Math.floor(width/2), height
             );
 
             const ctxDpt = canvasDpt.current.getContext('2d');
