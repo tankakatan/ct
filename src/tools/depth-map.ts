@@ -1,38 +1,65 @@
 export type DepthMapOpts = {
-    bytesPerPixel?: number;
-    width: number;
-    height: number;
+  bytesPerPixel?: number;
+  threshold?: number;
+  width: number;
+  height: number;
 };
 
-export default (
-    i1: Uint8ClampedArray,
-    i2: Uint8ClampedArray,
-    {
-        bytesPerPixel = 4,
-        width,
-        height,
-    }: DepthMapOpts
-) => {
-    const map = [];
+export type Vector = {
+  values: number[],
+  size: number;
+  equals(v: Vector): boolean;
+}
 
-    for (let i = 0; i < height; i++) {
-        for (let j = 0; j < width; j++) {
-            const offset = i * width + j;
-            const target = i1[offset * bytesPerPixel];
-
-            let depth = 0;
-
-            for (let k = 0; k < width - j; k++) {
-                if (target === i2[(offset + k) * bytesPerPixel]) {
-                    break;
-                }
-
-                depth++;
-            }
-
-            map.push(depth);
+function vector(
+  bitmap: number[],
+  from: number,
+  size: number = 3,
+): Vector {
+  const values: number[] = bitmap.slice(from, from + size);
+  return Object.assign({ values, size }, {
+    equals(y: Vector) {
+      if (y.size !== size) {
+        return false;
+      }
+      for (let i = 0; i < values.length; i++) {
+        if (values[i] !== y.values[i]) {
+          return false;
         }
-    }
+      }
+      return true;
+    },
+  });
+}
 
-    return map;
+export default function depthMap(
+  i1: number[],
+  i2: number[],
+  {
+    threshold = 0.5,
+    width,
+    height,
+  }: DepthMapOpts
+) {
+  const map = [];
+  for (let i = 0; i < height; i++) {
+    for (let j = 0; j < width; j++) {
+      const offset = (i * width) + j;
+      const target = vector(i1, offset);
+      const limit = Math.min(width - j, threshold ? width * threshold : width);
+
+      let depth = 0;
+      for (let k = 0; k < limit; k++) {
+        const suitor = vector(i2, offset + k);
+        if (target.equals(suitor)) {
+          depth = k;
+          break;
+        }
+      }
+
+      map.push(depth);
+    }
+  } 
+
+  return map;
 };

@@ -1,3 +1,4 @@
 export {default as rescale} from './rescale';
-export {default as ct} from './census-transform';
-export {default as dm} from './depth-map';
+export {default as censusTransform} from './census-transform';
+export {default as depthMap} from './depth-map';
+export * from './bitmap';
